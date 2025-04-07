@@ -94,7 +94,7 @@ cat >> target/linux/rockchip/armv8/config-6.6 << EOF
 #
 # RTL8367S 交换机配置
 #
-CONFIG_RTL83XX_API_RTL8367S=y      # 关键：匹配硬件型号
+CONFIG_RTL83XX_API_RTL8367b=y      # 关键：匹配硬件型号
 CONFIG_RTL83XX_CHIP_DETECT=y
 CONFIG_RTL83XX_GSW=y
 CONFIG_RTL83XX_SWCONFIG=y
