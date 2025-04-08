@@ -152,10 +152,12 @@ TARGET_DEVICES += nsy_g68-plus' target/linux/rockchip/image/armv8.mk
 # 增加bdy_g18-pro 增加nsy_g16-plus 增加nsy_g68-plus dts 文件
 mkdir target/linux/rockchip/dts/rk3568
 mkdir target/linux/rockchip/dts/rockchip
+mkdir target/linux/rockchip/files/arch/arm64/boot/dts/rockchip
 cp -f $GITHUB_WORKSPACE/configfiles/rk3568-nsy-g68-plus.dts target/linux/rockchip/rk3568-nsy-g68-plus.dts
 cp -f $GITHUB_WORKSPACE/configfiles/rk3568-nsy-g68-plus.dts target/linux/rockchip/dts/rk3568-nsy-g68-plus.dts
 cp -f $GITHUB_WORKSPACE/configfiles/rk3568-nsy-g68-plus.dts target/linux/rockchip/dts/rk3568/rk3568-nsy-g68-plus.dts
 cp -f $GITHUB_WORKSPACE/configfiles/rk3568-nsy-g68-plus.dts target/linux/rockchip/dts/rockchip/rk3568-nsy-g68-plus.dts
+cp -f $GITHUB_WORKSPACE/configfiles/rk3568-nsy-g68-plus.dts target/linux/rockchip/files/arch/arm64/boot/dts/rockchip/rk3568-nsy-g68-plus.dts
 
 # 定时限速插件
 git clone --depth=1 https://github.com/sirpdboy/luci-app-eqosplus package/luci-app-eqosplus
