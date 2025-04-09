@@ -150,7 +150,8 @@ jobs:
         echo "status=success" >> ${GITHUB_OUTPUT}
 
         # 打包 openwrt 目录
-        tar -czvf ./bin/openwrt.tar.gz ./
+        tar -czvf ../openwrt.tar.gz ./
+        mv ../openwrt.tar.gz ./bin/openwrt.tar.gz
         
     - name: 检查磁盘空间
       if: (!cancelled())
