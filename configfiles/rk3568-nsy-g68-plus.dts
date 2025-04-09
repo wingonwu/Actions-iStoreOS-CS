@@ -798,7 +798,7 @@
 };
 
 // form lintel,使能
-&combphy1_usq {
+&combphy1 {
 	rockchip,sgmii-mac-sel = <1>;
 	status = "okay";
 };
@@ -818,7 +818,7 @@
 	pinctrl-names = "default";
 	pinctrl-0 = <&gmac1m1_miim>;
 	power-domains = <&power RK3568_PD_PIPE>;
-	phys = <&combphy1_usq PHY_TYPE_SGMII>;
+	phys = <&combphy1 PHY_TYPE_SGMII>;
 
 	fixed-link {
 		speed = <1000>;
