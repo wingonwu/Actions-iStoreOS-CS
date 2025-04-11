@@ -40,9 +40,9 @@ rockchip_setup_interfaces()
 		;;
 	nsy,g68-plus|\
 	bdy,g18-pro)
-	ucidef_set_interfaces_lan_wan "eth0" "eth1"
-	ucidef_add_switch "switch0" \
-		"1:lan:4" "2:lan:3" "3:lan:2" "4:lan:1" "0:wan" "5u@eth0" "6u@eth1"
+	ucidef_set_interfaces_lan_wan "eth1" "eth0"
+        	ucidef_add_switch "switch0" \
+                        "0:lan:4" "2:lan:3" "3:lan:2" "4:lan:1" "0:wan" "6u@eth1" "7u@eth0"
 	[ -n "$lan_mac" ] && ucidef_set_interface_macaddr "lan" $lan_mac
 	[ -n "$wan_mac" ] && ucidef_set_interface_macaddr "wan" $wan_mac
 	;;
