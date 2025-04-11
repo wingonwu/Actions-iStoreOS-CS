@@ -12,7 +12,7 @@
 
 # enable rk3568 model adc keys
 cp -f $GITHUB_WORKSPACE/configfiles/adc-keys.txt adc-keys.txt
-! grep -q 'adc-keys {' package/boot/uboot-rk35xx/src/arch/arm/dts/rk3568-easepi.dts && sed -i '/\"rockchip,rk3568\";/r adc-keys.txt' package/boot/uboot-rk35xx/src/arch/arm/dts/rk3568-easepi.dts
+! grep -q 'adc-keys {' package/boot/uboot-rk35xx/src/arch/arm/dts/rk3568-easepi.dts && sed -i '/\"rockchip,rk3568\";/r adc-keys.txt' package/boot/uboot-rockchip/src/dts/upstream/src/arm64/rockchip/rk3568-easepi.dts
 
 # update ubus git HEAD
 cp -f $GITHUB_WORKSPACE/configfiles/ubus_Makefile package/system/ubus/Makefile
@@ -86,73 +86,27 @@ sed -i "s/192.168.1.1/10.0.0.1/g" package/base-files/files/bin/config_generate
 # 加入nsy_g68-plus初始化网络配置脚本
 cp -f $GITHUB_WORKSPACE/configfiles/swconfig_install package/base-files/files/etc/init.d/swconfig_install
 chmod 755 package/base-files/files/etc/init.d/swconfig_install
-# 清除旧配置（精确匹配 RTL83XX 系列）
-sed -i '/^CONFIG_RTL83XX_/d' target/linux/rockchip/armv8/config-6.6
+#
+rm -f target/linux/rockchip/armv8/base-files/etc/board.d/02_network
+cp -f $GITHUB_WORKSPACE/configfiles/02_network target/linux/rockchip/armv8/base-files/etc/board.d/02_network
 
-# 使用 heredoc 写入配置（避免转义问题）
-cat >> target/linux/rockchip/armv8/config-6.6 << EOF
-#
-# RTL8367S 交换机配置
-#
-CONFIG_RTL83XX_API_RTL8367b=y      # 关键：匹配硬件型号
-CONFIG_RTL83XX_CHIP_DETECT=y
-CONFIG_RTL83XX_GSW=y
-CONFIG_RTL83XX_SWCONFIG=y
-CONFIG_RTL83XX_IGMP_SNOOPING=y
-
-#
-# 接口模式配置（需与DTS的phy-mode一致）
-#
-CONFIG_RTL83XX_EXT0_SGMII=y        # 对应 DTS 的 extif0 sgmii
-CONFIG_RTL83XX_EXT1_RGMII=y        # 对应 DTS 的 extif1 rgmii
-
-#
-# SMI总线配置（确认GPIO与硬件原理图一致）
-#
-CONFIG_RTL83XX_SMI_BUS_CPU_GPIO_CLCK=2
-CONFIG_RTL83XX_SMI_BUS_CPU_GPIO_DATA=1
-
-#
-# 显式禁用未使用功能
-#
-# CONFIG_RTL83XX_CIF_MDIO is not set
-# CONFIG_RTL83XX_CIF_SPI is not set
-# CONFIG_RTL83XX_EXT0_DISABLE is not set
-# CONFIG_RTL83XX_EXT1_DISABLE is not set
-
-#
-# RGMII时序调整（参考硬件设计）
-#
-CONFIG_RTL83XX_RGMII_DELAY_RX=1
-CONFIG_RTL83XX_RGMII_DELAY_TX=1
-
-#
-# CPU端口配置（需与DTS的realtek,cpuport=<5>对齐）
-#
-# CONFIG_RTL83XX_LAN_CPU_EXT0 is not set      # 当DTS中cpuport=5时需设为EXT1
-CONFIG_RTL83XX_LAN_CPU_EXT1=y
-CONFIG_RTL83XX_PORT_WAN=0
-EOF
-
-rm -f target/linux/rockchip/armv8/base-files/etc/board.d02_network
-cp -f $GITHUB_WORKSPACE/configfiles/02_network target/linux/rockchip/armv8/base-files/etc/board.d02_network
-
-sed -i '/KERNEL_LOADADDR := 0x03200000/a\
-
-define Device\/nsy_g68-plus
-  DEVICE_VENDOR := NSY
-  DEVICE_MODEL := G68
-  SOC := rk3568
-  DEVICE_DTS := rockchip\/rk3568-nsy-g68-plus
-  SUPPORTED_DEVICES := nsy,g68-plus
-  DEVICE_PACKAGES := kmod-nvme kmod-scsi-core kmod-thermal kmod-switch-rtl8306 kmod-switch-rtl8366-smi kmod-switch-rtl8366rb kmod-switch-rtl8366s kmod-hwmon-pwmfan kmod-leds-pwm kmod-r8125 kmod-r8168 kmod-switch-rtl8367b swconfig kmod-swconfig
-endef
-TARGET_DEVICES += nsy_g68-plus' target/linux/rockchip/image/armv8.mk
+sed -i '/KERNEL_LOADADDR := 0x03200000/a \
+define Device\/nsy_g68-plus\n\
+  DEVICE_VENDOR := NSY\n\
+  DEVICE_MODEL := G68\n\
+  SOC := rk3568\n\
+  DEVICE_DTS := rockchip\/rk3568-nsy-g68-plus\n\
+  SUPPORTED_DEVICES := nsy,g68-plus\n\
+  UBOOT_DEVICE_NAME := easepi-rk3588\n\
+  DEVICE_PACKAGES := kmod-nvme kmod-scsi-core kmod-thermal kmod-switch-rtl8306 kmod-switch-rtl8366-smi kmod-switch-rtl8366rb kmod-switch-rtl8365mb kmod-switch-rtl8366s kmod-hwmon-pwmfan kmod-leds-pwm kmod-r8125 kmod-r8168 kmod-switch-rtl8367b swconfig kmod-swconfig\n\
+endef\n\
+TARGET_DEVICES += nsy_g68-plus' \
+target/linux/rockchip/image/armv8.mk
 
 # 增加bdy_g18-pro 增加nsy_g16-plus 增加nsy_g68-plus dts 文件
-mkdir target/linux/rockchip/dts/rk3568
-mkdir target/linux/rockchip/dts/rockchip
-mkdir target/linux/rockchip/files/arch/arm64/boot/dts/rockchip
+mkdir -p target/linux/rockchip/dts/rk3568
+mkdir -p target/linux/rockchip/dts/rockchip
+mkdir -p target/linux/rockchip/files/arch/arm64/boot/dts/rockchip
 cp -f $GITHUB_WORKSPACE/configfiles/rk3568-nsy-g68-plus.dts target/linux/rockchip/rk3568-nsy-g68-plus.dts
 cp -f $GITHUB_WORKSPACE/configfiles/rk3568-nsy-g68-plus.dts target/linux/rockchip/dts/rk3568-nsy-g68-plus.dts
 cp -f $GITHUB_WORKSPACE/configfiles/rk3568-nsy-g68-plus.dts target/linux/rockchip/dts/rk3568/rk3568-nsy-g68-plus.dts
