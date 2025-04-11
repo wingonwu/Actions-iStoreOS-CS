@@ -267,56 +267,68 @@
 		#clock-cells = <0>;
 	};
 
-	rtl8367s@0 {
-		#address-cells = <1>;
-		#size-cells = <0>;
+	&mdio0 {
+    rtl8367s: switch@29 {
+        compatible = "realtek,rtl8365mb";
+        reg = <29>;
+        reset-gpios = <&gpio1 RK_PB0 GPIO_ACTIVE_LOW>;
 
-		compatible = "realtek,rtl83xx-gsw";
-		realtek,mdio = <&mdio0>;
-		realtek,phy_addr = <29>;
+        pinctrl-names = "default";
+        pinctrl-0 = <&gmac0_reset>;  // 确保引脚复用正确
 
-		pinctrl-names = "default";
-		pinctrl-0 = <&rtl8367s_switch0_int>;
+leds {
+            led-0 {
+                label = "rtl8367s:green:spd_1000";
+                reg = <0>;
+                default-state = "off";
+            };
+            led-1 {
+                label = "rtl8367s:amber:link_tx";
+                reg = <1>;
+                linux,default-trigger = "activity";
+            };
+        };
 
-		interrupt-parent = <&gpio3>;
-		interrupts = <RK_PC0 IRQ_TYPE_LEVEL_LOW>;
+        ports {
+            #address-cells = <1>;
+            #size-cells = <0>;
 
-		realtek,cpuport = <5>;
-		realtek,reset-pin = <&gpio1 RK_PB0 GPIO_ACTIVE_LOW>;
-		realtek,led_active_low;
+            // LAN 端口定义
+            port@0 { label = "lan4"; reg = <0>; };
+            port@1 { label = "lan3"; reg = <1>; };
+            port@2 { label = "lan2"; reg = <2>; };
+            port@3 { label = "lan1"; reg = <3>; };
+            port@4 { label = "wan"; reg = <4>; };
 
-		/* mode: off link_act link_tx link_rx */
-		realtek,led_group_0 = "spd_1000";
-		realtek,led_group_1 = "link_tx";
+            // SGMII 端口（连接外部设备）
+            port@6 {
+                reg = <6>;
+                phy-mode = "sgmii";
+                tx-internal-delay-ps = <0>;
+                rx-internal-delay-ps = <0>;
+                fixed-link {
+                    speed = <1000>;
+                    full-duplex;
+                    pause;         // 启用流控
+                };
+            };
 
-		status = "okay";
-
-		extif0: extif@0 {
-			compatible = "realtek,extif";
-			reg = <0>;
-			phy-mode = "sgmii";
-			realtek,tx-pause;
-			realtek,rx-pause;
-
-			fixed-link {
-				speed = <1000>;
-				full-duplex;
-			};
-		};
-
-		extif1: extif@1 {
-			compatible = "realtek,extif";
-			reg = <1>;
-			phy-mode = "rgmii";
-			realtek,tx-pause;
-			realtek,rx-pause;
-
-			fixed-link {
-				speed = <1000>;
-				full-duplex;
-			};
-		};
-	};
+            // RGMII CPU 端口（明确标识为管理端口）
+            cpu-port@7 {
+                reg = <7>;
+                ethernet = <&gmac0>;
+                phy-mode = "rgmii";
+                tx-internal-delay-ps = <2000>;
+                rx-internal-delay-ps = <2100>;
+                fixed-link {
+                    speed = <1000>;
+                    full-duplex;
+                    pause;   // 可选非对称流控
+                };
+            };
+        };
+    };
+};
 
 	adc_keys: adc-keys {
 		compatible = "adc-keys";
@@ -775,17 +787,18 @@
 	status = "okay";
 	phy-mode = "rgmii";
 	clock_in_out = "output";
-	snps,reset-gpio = <&gpio1 RK_PB0 GPIO_ACTIVE_LOW>;
+	snps,reset-gpio = <&gpio1 RK_PB1 GPIO_ACTIVE_LOW>;
 	snps,reset-active-low;
 	snps,reset-delays-us = <0 20000 100000>;
 	assigned-clocks = <&cru SCLK_GMAC0_RX_TX &cru SCLK_GMAC0>;
 	assigned-clock-parents = <&cru SCLK_GMAC0_RGMII_SPEED &cru CLK_MAC0_2TOP>;
 	assigned-clock-rates = <0 125000000>;
-	tx_delay = <0x3c>;
-	rx_delay = <0x2f>;
+	tx_delay = <0x14>;
+	rx_delay = <0x15>;
 	clock_in_out = "output";
 	pinctrl-names = "default";
 	pinctrl-0 = <&gmac0_miim &gmac0_tx_bus2 &gmac0_rx_bus2 &gmac0_rgmii_clk &gmac0_rgmii_bus &gmac0_reset>;
+
 	fixed-link {
 		speed = <1000>;
 		full-duplex;
@@ -804,12 +817,12 @@
 };
 
 // form lintel,使能,sgmii 千兆.
+
 &gmac1 {
 	status = "okay";
 	phy-mode = "sgmii";
 	rockchip,pipegrf = <&pipegrf>;
 	rockchip,xpcs = <&xpcs>;
-	//不用reset
 	snps,reset-gpio = <&gpio2 RK_PC2 GPIO_ACTIVE_LOW>;
 	snps,reset-active-low;
 	snps,reset-delays-us = <0 20000 100000>;
