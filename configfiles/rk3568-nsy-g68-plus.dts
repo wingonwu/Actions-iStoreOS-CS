@@ -3,6 +3,7 @@
 /dts-v1/;
 
 #include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
 #include <dt-bindings/pwm/pwm.h>
 #include <dt-bindings/leds/common.h>
 #include <dt-bindings/input/input.h>
@@ -293,76 +294,85 @@
 	};
 };
 
-    mdio {
+                mdio {
             #address-cells = <1>;
             #size-cells = <0>;
 
-	rtl8367s: switch@29 {
-		compatible = "realtek,rtl8365mb";
-		reg = <29>;
-		reset-gpios = <&gpio1 RK_PB0 GPIO_ACTIVE_LOW>;
-		realtek,mdio = <&mdio0>;
-		pinctrl-names = "default";
-		pinctrl-0 = <&gmac0_reset>;  // 确保引脚复用正确
+            ethernet-switch@29 {
+                    compatible = "realtek,rtl8365mb";
+                    reg = <29>;
 
-		leds {
-			led-0 {
-				label = "rtl8367s:green:spd_1000";
-				reg = <0>;
-				default-state = "off";
-			};
-			led-1 {
-				label = "rtl8367s:amber:link_tx";
-				reg = <1>;
-				linux,default-trigger = "activity";
-			};
-		};
+                    reset-gpios = <&gpio1 RK_PB0 GPIO_ACTIVE_LOW>;
 
-		ports {
-			#address-cells = <1>;
-			#size-cells = <0>;
+                    switch_intc3: interrupt-controller {
+                            interrupt-parent = <&gpio0>;
+                            interrupts = <11 IRQ_TYPE_EDGE_FALLING>;
+                            interrupt-controller;
+                            #address-cells = <0>;
+                            #interrupt-cells = <1>;
+                    };
 
-			// LAN 端口定义
-			port@0 { label = "lan4"; reg = <0>; };
-			port@1 { label = "lan3"; reg = <1>; };
-			port@2 { label = "lan2"; reg = <2>; };
-			port@3 { label = "lan1"; reg = <3>; };
-			port@4 { label = "wan"; reg = <4>; };
+                    ethernet-ports {
+                            #address-cells = <1>;
+                            #size-cells = <0>;
 
-			// SGMII 端口（连接外部设备）
-			port@6 {
-				reg = <6>;
-				realtek,mdio = <&mdio0>;
-				phy-mode = "sgmii";
-				tx-internal-delay-ps = <0>;
-				rx-internal-delay-ps = <0>;
+                            ethernet-port@0 {
+                                    reg = <0>;
+                                    label = "lan4";
+                            };
 
-				fixed-link {
-					speed = <1000>;
-					full-duplex;
-					// 启用流控
-					pause;
-				};
-			};
+                            ethernet-port@1 {
+                                    reg = <1>;
+                                    label = "lan3";
+                            };
 
-			// RGMII CPU 端口（明确标识为管理端口）
-			cpu-port@7 {
-				reg = <7>;
-				ethernet = <&gmac0>;
-				phy-mode = "rgmii";
-				tx-internal-delay-ps = <2000>;
-				rx-internal-delay-ps = <2100>;
+                            ethernet-port@2 {
+                                    reg = <2>;
+                                    label = "lan2";
+                            };
 
-				fixed-link {
-					speed = <1000>;
-					full-duplex;
-					// 可选非对称流控
-					pause;
-				};
-			};
-		};
-	};
-};
+                            ethernet-port@3 {
+                                    reg = <3>;
+                                    label = "lan1";
+                            };
+
+                            ethernet-port@4 {
+                                    reg = <4>;
+                                    label = "wan";
+                            };
+
+                            ethernet-port@6 {
+                                    reg = <6>;
+                                    ethernet = <&eth1>;
+                                    phy-mode = "sgmii";
+                                    tx-internal-delay-ps = <0>;
+                                    rx-internal-delay-ps = <0>;
+
+                                    fixed-link {
+                                            speed = <1000>;
+                                            full-duplex;
+                                           	// 启用流控
+					                        pause;
+                                    };
+                            };
+
+                            ethernet-port@7 {
+                                    reg = <7>;
+                                    ethernet = <&eth0>;
+                                    phy-mode = "rgmii";
+                                    tx-internal-delay-ps = <2000>;
+                                    rx-internal-delay-ps = <2100>;
+
+                                    fixed-link {
+                                            speed = <1000>;
+                                            full-duplex;
+                                            // 启用流控
+					                        pause;
+                                    };
+                            };
+                    };
+            };
+      };
 
 &i2c0 {
 	status = "okay";
