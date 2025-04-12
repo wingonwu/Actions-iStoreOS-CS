@@ -293,12 +293,11 @@
 	};
 };
 
-&mdio0 {
 	rtl8367s: switch@29 {
 		compatible = "realtek,rtl8365mb";
 		reg = <29>;
 		reset-gpios = <&gpio1 RK_PB0 GPIO_ACTIVE_LOW>;
-
+		realtek,smi-mdio = <&mdio0>;
 		pinctrl-names = "default";
 		pinctrl-0 = <&gmac0_reset>;  // 确保引脚复用正确
 
@@ -358,7 +357,7 @@
 			};
 		};
 	};
-};
+
 
 &i2c0 {
 	status = "okay";
