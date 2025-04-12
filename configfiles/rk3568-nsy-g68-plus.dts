@@ -267,69 +267,6 @@
 		#clock-cells = <0>;
 	};
 
-	&mdio0 {
-    rtl8367s: switch@29 {
-        compatible = "realtek,rtl8365mb";
-        reg = <29>;
-        reset-gpios = <&gpio1 RK_PB0 GPIO_ACTIVE_LOW>;
-
-        pinctrl-names = "default";
-        pinctrl-0 = <&gmac0_reset>;  // 确保引脚复用正确
-
-leds {
-            led-0 {
-                label = "rtl8367s:green:spd_1000";
-                reg = <0>;
-                default-state = "off";
-            };
-            led-1 {
-                label = "rtl8367s:amber:link_tx";
-                reg = <1>;
-                linux,default-trigger = "activity";
-            };
-        };
-
-        ports {
-            #address-cells = <1>;
-            #size-cells = <0>;
-
-            // LAN 端口定义
-            port@0 { label = "lan4"; reg = <0>; };
-            port@1 { label = "lan3"; reg = <1>; };
-            port@2 { label = "lan2"; reg = <2>; };
-            port@3 { label = "lan1"; reg = <3>; };
-            port@4 { label = "wan"; reg = <4>; };
-
-            // SGMII 端口（连接外部设备）
-            port@6 {
-                reg = <6>;
-                phy-mode = "sgmii";
-                tx-internal-delay-ps = <0>;
-                rx-internal-delay-ps = <0>;
-                fixed-link {
-                    speed = <1000>;
-                    full-duplex;
-                    pause;         // 启用流控
-                };
-            };
-
-            // RGMII CPU 端口（明确标识为管理端口）
-            cpu-port@7 {
-                reg = <7>;
-                ethernet = <&gmac0>;
-                phy-mode = "rgmii";
-                tx-internal-delay-ps = <2000>;
-                rx-internal-delay-ps = <2100>;
-                fixed-link {
-                    speed = <1000>;
-                    full-duplex;
-                    pause;   // 可选非对称流控
-                };
-            };
-        };
-    };
-};
-
 	adc_keys: adc-keys {
 		compatible = "adc-keys";
 		io-channels = <&saradc 0>;
@@ -356,10 +293,75 @@ leds {
 	};
 };
 
+&mdio0: mdio {
+	rtl8367s: switch@29 {
+		compatible = "realtek,rtl8365mb";
+		reg = <29>;
+		reset-gpios = <&gpio1 RK_PB0 GPIO_ACTIVE_LOW>;
+
+		pinctrl-names = "default";
+		pinctrl-0 = <&gmac0_reset>;  // 确保引脚复用正确
+
+		leds {
+			led-0 {
+				label = "rtl8367s:green:spd_1000";
+				reg = <0>;
+				default-state = "off";
+			};
+			led-1 {
+				label = "rtl8367s:amber:link_tx";
+				reg = <1>;
+				linux,default-trigger = "activity";
+			};
+		};
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			// LAN 端口定义
+			port@0 { label = "lan4"; reg = <0>; };
+			port@1 { label = "lan3"; reg = <1>; };
+			port@2 { label = "lan2"; reg = <2>; };
+			port@3 { label = "lan1"; reg = <3>; };
+			port@4 { label = "wan"; reg = <4>; };
+
+			// SGMII 端口（连接外部设备）
+			port@6 {
+				reg = <6>;
+				phy-mode = "sgmii";
+				tx-internal-delay-ps = <0>;
+				rx-internal-delay-ps = <0>;
+
+				fixed-link {
+					speed = <1000>;
+					full-duplex;
+					// 启用流控
+					pause;
+				};
+			};
+
+			// RGMII CPU 端口（明确标识为管理端口）
+			cpu-port@7 {
+				reg = <7>;
+				ethernet = <&gmac0>;
+				phy-mode = "rgmii";
+				tx-internal-delay-ps = <2000>;
+				rx-internal-delay-ps = <2100>;
+
+				fixed-link {
+					speed = <1000>;
+					full-duplex;
+					// 可选非对称流控
+					pause;
+				};
+			};
+		};
+	};
+};
+
 &i2c0 {
-
 	status = "okay";
-
 	rk809: pmic@20 {
 		compatible = "rockchip,rk809";
 		reg = <0x20>;
