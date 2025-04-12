@@ -293,6 +293,10 @@
 	};
 };
 
+    mdio {
+            #address-cells = <1>;
+            #size-cells = <0>;
+
 	rtl8367s: switch@29 {
 		compatible = "realtek,rtl8365mb";
 		reg = <29>;
@@ -358,7 +362,7 @@
 			};
 		};
 	};
-
+};
 
 &i2c0 {
 	status = "okay";
