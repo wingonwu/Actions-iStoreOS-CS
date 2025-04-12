@@ -294,7 +294,8 @@
 	};
 };
 
-                mdio0 {
+            &mdio0 {
+	status = "okay";
             #address-cells = <1>;
             #size-cells = <0>;
 
@@ -795,9 +796,7 @@
 		status = "okay";
 };
 
-&mdio0 {
-	status = "okay";
-};
+
 
 &gmac0 {
 	status = "okay";
