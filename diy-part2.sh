@@ -90,27 +90,20 @@ chmod 755 package/base-files/files/etc/init.d/swconfig_install
 rm -f target/linux/rockchip/armv8/base-files/etc/board.d/02_network
 cp -f $GITHUB_WORKSPACE/configfiles/02_network target/linux/rockchip/armv8/base-files/etc/board.d/02_network
 
-sed -i '/KERNEL_LOADADDR := 0x03200000/a \
-define Device\/nsy_g68-plus\n\
-  DEVICE_VENDOR := NSY\n\
-  DEVICE_MODEL := G68\n\
-  SOC := rk3568\n\
-  DEVICE_DTS := rockchip\/rk3568-nsy-g68-plus\n\
-  SUPPORTED_DEVICES := nsy,g68-plus\n\
-  UBOOT_DEVICE_NAME := easepi-rk3588\n\
-  DEVICE_PACKAGES := kmod-nvme kmod-scsi-core kmod-thermal kmod-switch-rtl8306 kmod-switch-rtl8366-smi kmod-switch-rtl8366rb kmod-switch-rtl8365mb kmod-switch-rtl8366s kmod-hwmon-pwmfan kmod-leds-pwm kmod-r8125 kmod-r8168 kmod-switch-rtl8367b swconfig kmod-swconfig\n\
-endef\n\
-TARGET_DEVICES += nsy_g68-plus' \
-target/linux/rockchip/image/armv8.mk
+# 增加nsy_g68-plus
+echo -e "\\ndefine Device/nsy_g68-plus
+# \$(call Device/rk3568)
+  DEVICE_VENDOR := NSY
+  DEVICE_MODEL := G68
+  DEVICE_DTS := rk3568-nsy-g68-plus
+  SUPPORTED_DEVICES += nsy,g68-plus
+  DEVICE_PACKAGES := kmod-nvme kmod-scsi-core kmod-thermal kmod-switch-rtl8306 kmod-switch-rtl8366-smi kmod-switch-rtl8366rb kmod-switch-rtl8365mb kmod-switch-rtl8366s kmod-hwmon-pwmfan kmod-leds-pwm kmod-r8125 kmod-r8168 kmod-switch-rtl8367b swconfig kmod-swconfig
+endef
+TARGET_DEVICES += nsy_g68-plus" >> target/linux/rockchip/image/armv8.mk
 
 # 增加bdy_g18-pro 增加nsy_g16-plus 增加nsy_g68-plus dts 文件
-mkdir -p target/linux/rockchip/dts/rk3568
-mkdir -p target/linux/rockchip/dts/rockchip
+
 mkdir -p target/linux/rockchip/files/arch/arm64/boot/dts/rockchip
-cp -f $GITHUB_WORKSPACE/configfiles/rk3568-nsy-g68-plus.dts target/linux/rockchip/rk3568-nsy-g68-plus.dts
-cp -f $GITHUB_WORKSPACE/configfiles/rk3568-nsy-g68-plus.dts target/linux/rockchip/dts/rk3568-nsy-g68-plus.dts
-cp -f $GITHUB_WORKSPACE/configfiles/rk3568-nsy-g68-plus.dts target/linux/rockchip/dts/rk3568/rk3568-nsy-g68-plus.dts
-cp -f $GITHUB_WORKSPACE/configfiles/rk3568-nsy-g68-plus.dts target/linux/rockchip/dts/rockchip/rk3568-nsy-g68-plus.dts
 cp -f $GITHUB_WORKSPACE/configfiles/rk3568-nsy-g68-plus.dts target/linux/rockchip/files/arch/arm64/boot/dts/rockchip/rk3568-nsy-g68-plus.dts
 
 # 定时限速插件
