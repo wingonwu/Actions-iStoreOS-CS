@@ -375,9 +375,9 @@
             };
       };
 
-&xpcs {
-status = "okay";
-};
+//&xpcs {
+//status = "okay";
+//};
 
 &i2c0 {
 	status = "okay";
@@ -841,7 +841,7 @@ status = "okay";
 	status = "okay";
 	phy-mode = "sgmii";
 	rockchip,pipegrf = <&pipegrf>;
-	rockchip,xpcs = <&xpcs>;
+	// rockchip,xpcs = <&xpcs>;
 	snps,reset-gpio = <&gpio2 RK_PC2 GPIO_ACTIVE_LOW>;
 	snps,reset-active-low;
 	snps,reset-delays-us = <0 20000 100000>;
