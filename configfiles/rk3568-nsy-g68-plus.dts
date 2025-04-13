@@ -344,7 +344,7 @@
 
                             ethernet-port@6 {
                                     reg = <6>;
-                                    ethernet = <&eth1>;
+                                    ethernet = <&gmac1>;
                                     phy-mode = "sgmii";
                                     tx-internal-delay-ps = <0>;
                                     rx-internal-delay-ps = <0>;
@@ -359,7 +359,7 @@
 
                             ethernet-port@7 {
                                     reg = <7>;
-                                    ethernet = <&eth0>;
+                                    ethernet = <&gmac0>;
                                     phy-mode = "rgmii";
                                     tx-internal-delay-ps = <2000>;
                                     rx-internal-delay-ps = <2100>;
@@ -374,6 +374,10 @@
                     };
             };
       };
+
+&xpcs {
+status = "okay";
+};
 
 &i2c0 {
 	status = "okay";
